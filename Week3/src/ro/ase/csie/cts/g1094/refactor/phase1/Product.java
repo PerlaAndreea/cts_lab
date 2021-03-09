@@ -1,26 +1,39 @@
 package ro.ase.csie.cts.g1094.refactor.phase1;
 
+import ro.ase.csie.cts.g1094.refactor.exception.InvalidAgeException;
+import ro.ase.csie.cts.g1094.refactor.exception.InvalidPriceException;
+
 public class Product {
-	public float computePriceWithDiscount(int productType, float initialPrice, int accountAge)
+public static final int	MAX_AGE_ACCOUNT=10;
+public static final float MAX_FIDELITY_DISCOUNT= 0.15f;
+	public float computePriceWithDiscount(ProductType productType, float initialPrice, int accountAge) throws InvalidAgeException, InvalidPriceException
 	  {
+		if(initialPrice<=0) {
+			throw new InvalidPriceException();
+		}
+		if(accountAge<=0) {
+			throw new InvalidAgeException();
+		}
 	    float finalPrice = 0;
-	    float fidelityDiscount = (accountAge > 10) ? (float)15/100 : (float)accountAge/100; 
-	    if (productType == 1)
-	    {
-	      finalPrice = initialPrice;
+	    float fidelityDiscount = (accountAge > MAX_AGE_ACCOUNT) ? MAX_FIDELITY_DISCOUNT : (float)accountAge/100; 
+	    
+	    switch(productType) {
+	    case NEW:
+	    	finalPrice=initialPrice;
+	    	break;
+	    case DISCOUNTED:
+	    	 finalPrice = (initialPrice - (ProductType.DISCOUNTED.getDiscount() * initialPrice)) - fidelityDiscount * (initialPrice - (ProductType.DISCOUNTED.getDiscount() * initialPrice));
+	    	 break;
+	    case LIMITED_STOCK:
+	    	finalPrice = (initialPrice - (ProductType.LIMITED_STOCK.getDiscount() * initialPrice)) - fidelityDiscount * (initialPrice - (ProductType.LIMITED_STOCK.getDiscount() * initialPrice));
+	    	break;
+	    case LEGACY:
+	    	finalPrice = (initialPrice - (ProductType.LEGACY.getDiscount() * initialPrice)) - fidelityDiscount * (initialPrice - (ProductType.LEGACY.getDiscount() * initialPrice));
+	    	break;
+	    default:
+	    	throw new UnsupportedOperationException("The enum type is not covered");
 	    }
-	    else if (productType == 2)
-	    {
-	      finalPrice = (initialPrice - (0.1f * initialPrice)) - fidelityDiscount * (initialPrice - (0.1f * initialPrice));
-	    }
-	    else if (productType == 3)
-	    {
-	      finalPrice = (initialPrice - (0.25f * initialPrice)) - fidelityDiscount * (initialPrice - (0.25f * initialPrice));
-	    }
-	    else if (productType == 4)
-	    {
-	      finalPrice = (initialPrice - (0.35f * initialPrice)) - fidelityDiscount * (initialPrice - (0.35f * initialPrice));
-	    }
+	    
 	    return finalPrice;
 	  }
 }
